@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: demo # An empty namespace is equivalent to the "default" namespace.
+  name: alpine # Name must be unique within a namespace.
+  labels: # Map of string keys and values that can be used to organize and categorize (scope and select) objects.
+    project: alpine
+    app: alpine
+    namespace: demo
+spec: # Specification of the desired behavior of the Deployment.
+  selector: # Label selector for pods. It must match the pod template's labels.
+    matchLabels: # The requirements are ANDed.
+      project: alpine
+      app: alpine
+      namespace: demo
+  replicas: 1 # Number of desired pods, defaults to 1.
+  strategy: # The deployment strategy to use to replace existing pods with new ones.
+    type: RollingUpdate # Can be "Recreate" or "RollingUpdate". Default is RollingUpdate.
+  template: # Template describes the pods that will be created.
+    metadata: # Standard object's metadata.
+      labels:
+        project: alpine
+        app: alpine
+        namespace: demo
+    spec: # Specification of the desired behavior of the pod.
+      restartPolicy: Always # Restart policy for all containers within the pod. One of Always, OnFailure, Never. Default to Always.
+      containers: # List of containers belonging to the pod. Containers cannot be added or removed or updated. There must be at least one container in a Pod.
+        - name: alpine # Name of the container specified as a DNS_LABEL. Each container in a pod must have a unique name (DNS_LABEL). Cannot be updated.
+          image: alpine:3.11 # Docker image name.
+          resources: # Compute Resources required by this container. Cannot be updated.
+            limits: # Limits describes the maximum amount of compute resources allowed.
+              cpu: 200m # 100m means one hundred millicpu = 0.1 cpu
+              memory: 256Mi # or 256M
+            requests: # Requests describes the minimum amount of compute resources required. If Requests is omitted for a container, it defaults to Limits if that is explicitly specified.
+              cpu: 100m
+              memory: 128Mi
+          imagePullPolicy: IfNotPresent # One of Always, Never, IfNotPresent. Defaults to Always if :latest tag is specified, or IfNotPresent otherwise. Cannot be updated.
+          command: ["/bin/sh"]
+          args: ["-c", "while true; do echo hello; sleep 10; done"] # In order to keep the pod live
